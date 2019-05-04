@@ -54,7 +54,12 @@ $ python3 DiffGeoOps.py --mesh torus.off torus_KG.npy
 ```
 
 ## Some results
+- Plot of Gaussian curvature for Torus
+![Gaussian curvature for Torus](img/torus_KG.png?raw=true "Gaussian curvature of Torus")
 
+<br> <br>
+- Plot of Mean curvature for the Mother-son mesh
+![Mean curvature for Mother-son mesh](img/mother.png "Mean curvature plot for Mother-son mesh")
 
 
 - - -
