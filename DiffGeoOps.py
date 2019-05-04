@@ -289,7 +289,7 @@ def read_off(file):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        description='test', formatter_class=RawTextHelpFormatter)
+        description='First, use --calc to generate files for containing value of the \noperator and then plot the operatore using --mesh.', formatter_class=RawTextHelpFormatter)
     parser.add_argument(
         "--calc", help="Flag for calculation mode", action="store_true")
     parser.add_argument("i", help="Path to input file", type=str)
@@ -358,7 +358,7 @@ if __name__ == '__main__':
         mesh.mlab_source.dataset.point_data.scalars = f
         mesh.mlab_source.dataset.point_data.scalars.name = 'Point data'
 
-        cbar = mlab.colorbar(orientation='vertical', title="Value")
+        # cbar = mlab.colorbar(orientation='vertical', title="Value")
 
         mesh.mlab_source.update()
         mesh.parent.update()
