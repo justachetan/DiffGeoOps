@@ -62,6 +62,13 @@ $ python3 DiffGeoOps.py --mesh torus.off torus_KG.npy
 ![Mean curvature for Mother-son mesh](img/mother.png "Mean curvature plot for Mother-son mesh")
 
 
+## License 
+
+Copyright (c) 2019 Aditya Chetan
+
+For license information, see [LICENSE](LICENSE) or http://mit-license.org
+
+
 - - -
 
 This code was written as a part of my independent study in Differential Geometry with [Dr. Kaushik Kalyanaraman](https://www.iiitd.ac.in/kaushik) at IIIT Delhi during Winter 2019 Semester. 
