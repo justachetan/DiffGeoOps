@@ -42,7 +42,7 @@ optional arguments:
 
 
 First you need to provide a 3D mesh as an input to the code. The mesh should be in Object File Format (.off).
-Use mode 2 for now until further notice.
+Use mode 2 for now until further notice. Then, use the command without the `--calc` flag for plotting by providing apprpriate mesh and value files.
 
 ### Example Usage
 
@@ -54,7 +54,19 @@ $ python3 DiffGeoOps.py --mesh torus.off torus_KG.npy
 ```
 
 ## Some results
+- Plot of Gaussian curvature for Torus
+![Gaussian curvature for Torus](img/torus_KG.png?raw=true "Gaussian curvature of Torus")
 
+<br> <br>
+- Plot of Mean curvature for the Mother-son mesh
+![Mean curvature for Mother-son mesh](img/mother.png "Mean curvature plot for Mother-son mesh")
+
+
+## License 
+
+Copyright (c) 2019 Aditya Chetan
+
+For license information, see [LICENSE](LICENSE) or http://mit-license.org
 
 
 - - -
