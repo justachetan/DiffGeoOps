@@ -42,7 +42,7 @@ optional arguments:
 
 
 First you need to provide a 3D mesh as an input to the code. The mesh should be in Object File Format (.off).
-Use mode 2 for now until further notice.
+Use mode 2 for now until further notice. Then, use the command without the `--calc` flag for plotting by providing apprpriate mesh and value files.
 
 ### Example Usage
 
