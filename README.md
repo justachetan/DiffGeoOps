@@ -56,7 +56,7 @@ $ python3 DiffGeoOps.py --mode 1 --mesh torus.off torus_KG.npy
 You can also provide multiple files as input for `--mode 0` now:
 
 ```
-# Calculating Mean and Gaussian curvatures for 2 meshes
+$ # Calculating Mean and Gaussian curvatures for 2 meshes
 $ python DiffGeoOps.py --mode 0 --op 12 example_meshes/torus.off example_meshes/moebius.off
 [DiffGeoOps]: Mean Curvature for example_meshes/torus.off saved to ./example_meshes/torus_KH.npy
 [DiffGeoOps]: Gaussian Curvature for example_meshes/torus.off saved to ./example_meshes/torus_KG.npy
