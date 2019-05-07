@@ -84,6 +84,8 @@ def calc_A_mixed(vertices, triangles):
                 i, tid] = mean_curvature_normal_operator_at_v_t
 
     A_mixed = np.sum(A_mixed, axis=1)
+    # Set zeros in A_mixed to very small values
+    A_mixed[A_mixed == 0] = 10 ** -40
     mean_curvature_normal_operator = (
         (1 / (2 * A_mixed)) * np.sum(mean_curvature_normal_operator, axis=1).T).T
 
