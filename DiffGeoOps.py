@@ -3,79 +3,6 @@ import numpy as np
 from argparse import RawTextHelpFormatter
 
 
-def generate_cot_matrix(vertices, triangles):
-
-    numv = vertices.shape[0]
-    numt = triangles.shape[0]
-
-    cot_matrix = np.zeros((numv, numv))
-    scaling_factor = np.ones((numv, numv))
-
-    for i in range(numv):
-
-        req_t = triangles[(triangles[:, 0] == i) | (
-            triangles[:, 1] == i) | (triangles[:, 2] == i)]
-
-        for j in range(req_t.shape[0]):
-
-            nbhr = [v for v in req_t[j] if v != i]
-
-            vec1 = (vertices[nbhr[0]] - vertices[i]) / \
-                np.linalg.norm(vertices[nbhr[0]] - vertices[i], 2)
-            vec2 = (vertices[nbhr[1]] - vertices[i]) / \
-                np.linalg.norm(vertices[nbhr[1]] - vertices[i], 2)
-            angle_at_x = np.arccos(np.dot(vec1, vec2))
-
-            if angle_at_x > np.pi / 2:
-                scaling_factor[i, nbhr[0]] = 1 / 2
-                scaling_factor[i, nbhr[1]] = 1 / 2
-
-            vec1a = (vertices[i] - vertices[nbhr[0]]) / \
-                np.linalg.norm(vertices[i] - vertices[nbhr[0]], 2)
-            vec2a = (vertices[nbhr[1]] - vertices[nbhr[0]]) / \
-                np.linalg.norm(vertices[nbhr[1]] - vertices[nbhr[0]], 2)
-
-            inner_prod = np.dot(vec1a, vec2a)
-            angle = np.arccos(inner_prod)
-
-            if angle > np.pi / 2:
-                scaling_factor[i, nbhr[0]] = 1 / 4
-
-            cot_matrix[i, nbhr[1]] += 1 / np.tan(angle)
-
-            vec1b = (vertices[i] - vertices[nbhr[1]]) / \
-                np.linalg.norm(vertices[i] - vertices[nbhr[1]], 2)
-            vec2b = (vertices[nbhr[0]] - vertices[nbhr[1]]) / \
-                np.linalg.norm(vertices[nbhr[0]] - vertices[nbhr[1]], 2)
-
-            inner_prod = np.dot(vec1b, vec2b)
-            angle = np.arccos(inner_prod)
-
-            if angle > np.pi / 2:
-                scaling_factor[i, nbhr[0]] = 1 / 4
-
-            cot_matrix[i, nbhr[0]] += 1 / np.tan(angle)
-
-    return cot_matrix, scaling_factor
-
-
-def get_diff_norm(vertices):
-    numv = vertices.shape[0]
-    numt = triangles.shape[0]
-    diff_norm = np.zeros((numv, numv))
-    diff_norm = np.linalg.norm(
-        vertices.reshape(-1, 1, 3) - vertices, 2, axis=2)**2
-
-    return diff_norm
-
-
-def calc_A_mixed(vertices, cot_matrix, scaling_factor):
-    #     cot_matrix, scaling_factor = generate_cot_matrix(vertices, triangles)
-    diff_norm = get_diff_norm(vertices)
-    A_mixed = np.sum(cot_matrix * diff_norm * scaling_factor, axis=1) / 8
-    return A_mixed
-
-
 def get_heron_area(a, b, c):
 
     x = np.linalg.norm((b - a), 2)
@@ -86,78 +13,14 @@ def get_heron_area(a, b, c):
     return (s * (s - x) * (s - y) * (s - z)) ** 0.5
 
 
-def calc_A_mixed2(vertices, triangles, cot_matrix):
-    numv = vertices.shape[0]
-    numt = triangles.shape[0]
-
-    diff_norm = get_diff_norm(vertices)
-
-    A_mixed = np.zeros((numv, numt))
-
-    for i in range(numv):
-
-        req_t = triangles[(triangles[:, 0] == i) | (
-            triangles[:, 1] == i) | (triangles[:, 2] == i)]
-
-        for j in range(len(req_t)):
-
-            # tid = triangles.index(req_t[j])
-            tid = np.where(np.all(triangles == req_t[j], axis=1))
-
-            nbhr = [v for v in req_t[j] if v != i]
-
-            vec1 = (vertices[nbhr[0]] - vertices[i]) / \
-                np.linalg.norm(vertices[nbhr[0]] - vertices[i], 2)
-            vec2 = (vertices[nbhr[1]] - vertices[i]) / \
-                np.linalg.norm(vertices[nbhr[1]] - vertices[i], 2)
-            angle_at_x = np.arccos(np.dot(vec1, vec2))
-
-            if angle_at_x > np.pi / 2:
-                A_mixed[i, tid] = get_heron_area(
-                    vertices[i], vertices[nbhr[0]], vertices[nbhr[1]]) / 2
-                continue
-
-            vec1a = (vertices[i] - vertices[nbhr[0]]) / \
-                np.linalg.norm(vertices[i] - vertices[nbhr[0]], 2)
-            vec2a = (vertices[nbhr[1]] - vertices[nbhr[0]]) / \
-                np.linalg.norm(vertices[nbhr[1]] - vertices[nbhr[0]], 2)
-
-            inner_prod = np.dot(vec1a, vec2a)
-            angle = np.arccos(inner_prod)
-
-            if angle > np.pi / 2:
-                A_mixed[i, tid] = get_heron_area(
-                    vertices[i], vertices[nbhr[0]], vertices[nbhr[1]]) / 4
-                continue
-
-            vec1b = (vertices[i] - vertices[nbhr[1]]) / \
-                np.linalg.norm(vertices[i] - vertices[nbhr[1]], 2)
-            vec2b = (vertices[nbhr[0]] - vertices[nbhr[1]]) / \
-                np.linalg.norm(vertices[nbhr[0]] - vertices[nbhr[1]], 2)
-
-            inner_prod = np.dot(vec1b, vec2b)
-            angle = np.arccos(inner_prod)
-
-            if angle > np.pi / 2:
-                A_mixed[i, tid] = get_heron_area(
-                    vertices[i], vertices[nbhr[0]], vertices[nbhr[1]]) / 4
-                continue
-
-            A_v_of_tid = 0.125 * (cot_matrix[i, nbhr[0]] * diff_norm[
-                                  i, nbhr[0]] + cot_matrix[i, nbhr[1]] * diff_norm[i, nbhr[1]])
-            A_mixed[i, tid] = A_v_of_tid
-
-    return np.sum(A_mixed, axis=1)
-
-
-def calc_A_mixed3(vertices, triangles):
+def calc_A_mixed(vertices, triangles):
 
     numv = vertices.shape[0]
     numt = triangles.shape[0]
 
-    diff_norm = get_diff_norm(vertices)
-
     A_mixed = np.zeros((numv, numt))
+
+    mean_curvature_normal_operator = np.zeros((numv, numt, 3))
 
     for i in range(numv):
 
@@ -207,38 +70,29 @@ def calc_A_mixed3(vertices, triangles):
                     vertices[i], vertices[nbhr[0]], vertices[nbhr[1]]) / 4
                 continue
 
-            A_v_of_tid = 0.125 * (((1 / np.tan(angle1)) * np.linalg.norm(vertices[i] - nbhr[
-                                  1], 2)) + ((1 / np.tan(angle2)) * np.linalg.norm(vertices[i] - nbhr[0], 2)))
+            cot_1 = 1 / np.tan(angle1)
+            cot_2 = 1 / np.tan(angle2)
+
+            A_v_of_tid = 0.125 * ((cot_1 * np.linalg.norm(vertices[i] - vertices[nbhr[
+                1]], 2)**2) + (cot_2 * np.linalg.norm(vertices[i] - vertices[nbhr[0]], 2)**2))
+
+            mean_curvature_normal_operator_at_v_t = ((1 / np.tan(angle1)) * (
+                vertices[i] - vertices[nbhr[1]])) + ((1 / np.tan(angle2)) * (vertices[i] - vertices[nbhr[0]]))
+
             A_mixed[i, tid] = A_v_of_tid
+            mean_curvature_normal_operator[
+                i, tid] = mean_curvature_normal_operator_at_v_t
 
-    return np.sum(A_mixed, axis=1)
+    A_mixed = np.sum(A_mixed, axis=1)
+    mean_curvature_normal_operator = (
+        (1 / (2 * A_mixed)) * np.sum(mean_curvature_normal_operator, axis=1).T).T
 
-
-def get_diff(vertices):
-    numv = vertices.shape[0]
-    numt = triangles.shape[0]
-    diff_x = np.zeros((numv, numv, 3))
-    diff_x = vertices.reshape(-1, 1, 3) - vertices
-
-    return diff_x
+    return A_mixed, mean_curvature_normal_operator
 
 
-def mean_curvature_normal_operator(vertices, triangles, A_mixed, cot_matrix):
-    numv = vertices.shape[0]
-    numt = triangles.shape[0]
-    diff_x = get_diff(vertices)
-    K = np.zeros((numv, numv, 3))
-    for i in range(numv):
-
-        K[i, :] = (cot_matrix[i, :] * diff_x[i, :].T).T / (2 * A_mixed[i])
-    K = np.sum(K, axis=1)
-    return K
-
-
-def get_mean_curvature(vertices, triangles, A_mixed, cot_matrix):
-    K = mean_curvature_normal_operator(
-        vertices, triangles, A_mixed, cot_matrix)
-    K_H = 0.5 * np.linalg.norm(K, 2, axis=1)
+def get_mean_curvature(mean_curvature_normal_operator_vector):
+    K_H = 0.5 * \
+        np.linalg.norm(mean_curvature_normal_operator_vector, 2, axis=1)
     return K_H
 
 
@@ -260,6 +114,7 @@ def get_gaussian_curvature(vertices, triangles, A_mixed):
             vec2 = vec2 / np.linalg.norm(vec2, 2)
             angle = np.arccos(np.dot(vec1, vec2))
             sum_theta += angle
+
         K_G[i] = ((2 * np.pi) - sum_theta) / A_mixed[i]
     return K_G
 
@@ -289,61 +144,82 @@ def read_off(file):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        description='First, use --calc to generate files for containing value of the \noperator and then plot the operatore using --mesh.', formatter_class=RawTextHelpFormatter)
+        description="First, use '--mode 0' to generate files for containing value of the \noperator and then plot the operatore using '--mode 1' and '--mesh'. For \n--ops, the operations are encoded as: \n\t- 1: Mean Curvature\n\t- 2: Gaussian Curvature\n\t- 3: Principal Curvatures\nNote that each operation is performed for all the input files.", formatter_class=RawTextHelpFormatter)
     parser.add_argument(
-        "--calc", help="Flag for calculation mode", action="store_true")
-    parser.add_argument("i", help="Path to input file", type=str)
+        "--mode", help="specifies mode for program:\n- 0: For computation\n- 1: For Plotting", type=int, required=True, default=0)
+    parser.add_argument("i", help="path to input file(s)", type=str, nargs="+")
     parser.add_argument(
-        "--op", help="Sets the operation\n1 - Mean Curvature\n2 - Gaussian Curvature\n3 - Principal Curvatures", type=int)
-    parser.add_argument("-o", help="Path to output file",
-                        type=str, default=None)
+        "--ops", help="number to denote all the operations to be \nperformed on each file.", type=int)
     parser.add_argument(
-        "--mesh", help="Required for plotting the figure", default=None)
-    parser.add_argument("--title", help="Title of plot", default="My Plot")
+        "--mesh", help="mesh on which curvatures were calculated (redundant in computation mode)", default=None)
     parser.add_argument(
-        "--mode", help="Tells how to handle obtuse triangles:\n0: Voronoi Mode\n1: Heron mode\n2: Modified Heron Mode", type=int, default=0)
+        "--save", help="flag for saving the plot (redundant in computation mode)", default=False, action="store_true")
+    parser.add_argument(
+        "--title", help="title of plot (redundant in computation mode)", default="My Plot")
+
     args = parser.parse_args()
-    if args.calc == True:
-        op = args.op
-        if op is None:
-            parser.error("--calc requires --op")
-        mesh_file = args.i
-        f = open(mesh_file)
-        vertices, triangles = read_off(f)
-        cot_matrix, scaling_factor = generate_cot_matrix(vertices, triangles)
+    if args.mode == 0:
 
-        A_mixed = None
+        for inp in args.i:
 
-        if args.mode == 0:
-            A_mixed = calc_A_mixed(vertices, cot_matrix, scaling_factor)
-        elif args.mode == 1:
-            A_mixed = calc_A_mixed2(vertices, triangles, cot_matrix)
-        else:
-            A_mixed = calc_A_mixed3(vertices, triangles)
+            ops = [int(d) for d in str(args.ops)]
+            if ops is None:
+                parser.error("--mode 0 requires --ops")
+            mesh_file = inp
+            f = open(mesh_file)
+            vertices, triangles = read_off(f)
 
-        K_H = None
-        K_G = None
-        K_1 = None
-        K_2 = None
+            A_mixed = None
+            mean_curvature_normal_operator_vec = None
 
-        if op == 1:
-            K_H = get_mean_curvature(vertices, triangles, A_mixed, cot_matrix)
-            if args.o is None:
-                np.save(args.i.split(".")[0] + "_KH.npy", K_H)
-        if op == 2:
-            K_G = get_gaussian_curvature(vertices, triangles, A_mixed)
-            if args.o is None:
-                np.save(args.i.split(".")[0] + "_KG.npy", K_G)
-        if op == 3:
-            K_H = get_mean_curvature(vertices, triangles, A_mixed, cot_matrix)
-            K_G = get_gaussian_curvature(vertices, triangles, A_mixed)
-            K_1, K_2 = get_principal_curvatures(K_H, K_G)
-            if args.o is None:
-                np.save(args.i.split(".")[0] + "_K1.npy", K_1)
-                np.save(args.i.split(".")[0] + "_K2.npy", K_2)
-    else:
+            A_mixed, mean_curvature_normal_operator_vec = calc_A_mixed(
+                vertices, triangles)
+
+            K_H = None
+            K_G = None
+            K_1 = None
+            K_2 = None
+
+            for op in ops:
+                if op == 1 and K_H is None:
+                    K_H = get_mean_curvature(
+                        mean_curvature_normal_operator_vec)
+                    np.save("./" + inp.split(".")[0] + "_KH.npy", K_H)
+                    print("[DiffGeoOps]: Mean Curvature for", inp,
+                          "saved to", "./" + inp.split(".")[0] + "_KH.npy")
+
+                elif op == 2 and K_G is None:
+                    K_G = get_gaussian_curvature(vertices, triangles, A_mixed)
+                    np.save("./" + inp.split(".")[0] + "_KG.npy", K_G)
+                    print("[DiffGeoOps]: Gaussian Curvature for", inp,
+                          "saved to", "./" + inp.split(".")[0] + "_KG.npy")
+
+                elif op == 3:
+                    if K_H is None:
+                        K_H = get_mean_curvature(
+                            mean_curvature_normal_operator_vec)
+                    if K_G is None:
+                        K_G = get_gaussian_curvature(
+                            vertices, triangles, A_mixed)
+                    K_1, K_2 = get_principal_curvatures(K_H, K_G)
+                    np.save("./" + inp.split(".")[0] + "_K1.npy", K_1)
+                    np.save("./" + inp.split(".")[0] + "_K2.npy", K_2)
+                    print("[DiffGeoOps]: Principal Curvature 1 for", inp,
+                          "saved to", "./" + inp.split(".")[0] + "_K1.npy")
+                    print("[DiffGeoOps]: Principal Curvature 2 for", inp,
+                          "saved to", "./" + inp.split(".")[0] + "_K2.npy")
+
+    elif args.mode == 1:
+
+        if len(args.i) > 1:
+            parser.error("Multiple inputs only allowed in computation mode!")
+
         from mayavi import mlab
-        f = np.load(args.i)
+
+        if args.i[0].split(".")[1] != "npy":
+            raise RunTimeError("Plotting requires .npy files!")
+
+        f = np.load(args.i[0])
         if args.mesh is None:
             parser.error("Plotting requires --mesh")
         mlab.figure(args.title, size=(600, 600))
@@ -358,14 +234,21 @@ if __name__ == '__main__':
         mesh.mlab_source.dataset.point_data.scalars = f
         mesh.mlab_source.dataset.point_data.scalars.name = 'Point data'
 
-        # cbar = mlab.colorbar(orientation='vertical', title="Value")
-
         mesh.mlab_source.update()
         mesh.parent.update()
 
         mesh2 = mlab.pipeline.set_active_attribute(mesh,
                                                    point_scalars='Point data')
         s2 = mlab.pipeline.surface(mesh2)
-        if args.o is not None:
-            mlab.savefig(args.o)
+        s2.actor.mapper.interpolate_scalars_before_mapping = True
+        mlab.colorbar(s2, title='Curvature\n', orientation='vertical')
+
+        if args.save:
+            mlab.savefig(args.i[0].split(".")[0] + ".png")
+            print("[DiffGeoOps]: Plot for", args.i[0],
+                  "saved to", args.i[0].split(".")[0] + ".png")
+        print("[DiffGeoOps]: Showing plot for", args.i[0])
         mlab.show()
+
+    else:
+        parser.error("Flag not recognized. Please use -h for usage.")
