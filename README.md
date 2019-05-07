@@ -4,7 +4,7 @@ This repository contains a Python implementation of the paper:
 
 >[Discrete Differential-Geometry Operators for Triangulated 2-Manifolds. *Mark Meyer*, *Mathieu Desbrun*, *Peter Schröder* and *Alan H. Barr*. *VisMath 2002*](http://www.multires.caltech.edu/pubs/diffGeoOps.pdf)
 
-This module implements the discrete versions of three differential geometry operators that have been discussed in the paper. They are:
+This module implements the discrete versions of three differential geometry operators for Triangulated 2-manifolds that have been discussed in the paper. They are:
 
 - Mean Curvature
 - Gaussian Curvature
