@@ -20,7 +20,7 @@ usage: DiffGeoOps.py [-h] --mode MODE [--ops OPS] [--mesh MESH] [--save]
 
 First, use '--mode 0' to generate files for containing value of the
 operator and then plot the operatore using '--mode 1' and '--mesh'. For
---ops, the operations are encoded as:
+'--ops', the operations are encoded as:
   - 1: Mean Curvature
   - 2: Gaussian Curvature
   - 3: Principal Curvatures

@@ -146,7 +146,7 @@ def read_off(file):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        description="First, use '--mode 0' to generate files for containing value of the \noperator and then plot the operatore using '--mode 1' and '--mesh'. For \n--ops, the operations are encoded as: \n\t- 1: Mean Curvature\n\t- 2: Gaussian Curvature\n\t- 3: Principal Curvatures\nNote that each operation is performed for all the input files.", formatter_class=RawTextHelpFormatter)
+        description="First, use '--mode 0' to generate files for containing value of the \noperator and then plot the operatore using '--mode 1' and '--mesh'. For \n'--ops', the operations are encoded as: \n\t- 1: Mean Curvature\n\t- 2: Gaussian Curvature\n\t- 3: Principal Curvatures\nNote that each operation is performed for all the input files.", formatter_class=RawTextHelpFormatter)
     parser.add_argument(
         "--mode", help="specifies mode for program:\n- 0: For computation\n- 1: For Plotting", type=int, required=True, default=0)
     parser.add_argument("i", help="path to input file(s)", type=str, nargs="+")
