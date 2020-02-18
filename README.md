@@ -69,6 +69,7 @@ $ python DiffGeoOps.py --mode 0 --op 12 example_meshes/torus.off example_meshes/
 
 ## Some results
 - Plot of Gaussian curvature for Torus
+
 ![Gaussian curvature for Torus](img/torus_KG.png "Gaussian curvature of Torus")
 
 <br> <br>
