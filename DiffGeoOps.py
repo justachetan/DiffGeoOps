@@ -132,6 +132,7 @@ def get_principal_curvatures(K_H, K_G):
 
 
 def read_off(file):
+    """ Referece: https://stackoverflow.com/questions/31129968/off-files-on-python """
     if 'OFF' != file.readline().strip():
         raise('Not a valid OFF header')
 
